@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 
@@ -479,6 +480,29 @@ function suite(spec: StoreSpec) {
       before.properties,
     ]);
     expect([out.entity.aliases, out.entity.external_ids]).toEqual([["Abby"], { hr: "B2", crm: "C3" }]);
+  });
+
+  it("restores the relation and source from a legacy merge record on unmerge", async () => {
+    const g = open();
+    await g.insert.facts(
+      {
+        entities: [
+          { type: "Person", name: "Robert", aliases: ["Bob"] },
+          { type: "Company", name: "Acme" },
+        ],
+        relations: [{ from_entity: ROBERT, type: "WORKS_AT", to_entity: "company:acme" }],
+      },
+      { source_id: "staff" },
+    );
+    const fixture = new URL("../../tests/fixtures/entity-merge-0.1.0.json", import.meta.url);
+    const record = JSON.parse(readFileSync(fixture, "utf8"));
+    await g.store.upsertNode(g.namespace, "EntityMerge", record.id, { ...record, ns: g.namespace });
+    const [merge] = (await g.entities.merges(ROBERT)).items;
+    await g.entities.unmerge(merge!.id);
+    expect((await g.relations.list()).items.map((r) => [r.from_entity, r.type, r.to_entity])).toEqual([
+      [BOB, "WORKS_AT", "company:acme"],
+    ]);
+    expect((await g.entities.evidence(BOB)).items.map((e) => e.source_id)).toEqual(["staff"]);
   });
 
   it("keeps one record across repeated inserts of the same merge and restores every merged source", async () => {

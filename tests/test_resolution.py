@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 from helpers import (
@@ -335,6 +336,26 @@ def test_merge_rewrites_every_reference_and_unmerge_restores_them():
         run(g.entities.unmerge(merge.id))
     with pytest.raises(NotFoundError):
         run(g.entities.unmerge("entitymerge:missing"))
+
+
+def test_unmerge_restores_relation_and_source_from_a_legacy_merge_record():
+    g = fresh_graph("res")
+    run(
+        g.insert.facts(
+            {
+                "entities": [ROBERT, {"type": "Company", "name": "Acme"}],
+                "relations": [{"from_entity": ROBERT_ID, "type": "WORKS_AT", "to_entity": "company:acme"}],
+            },
+            source_id="staff",
+        )
+    )
+    record = json.loads((Path(__file__).parent / "fixtures" / "entity-merge-0.1.0.json").read_text())
+    run(g.store.upsert_node(g.namespace, "EntityMerge", record["id"], {**record, "ns": g.namespace}))
+    [merge] = run(g.entities.merges(ROBERT_ID)).items
+    run(g.entities.unmerge(merge.id))
+    [rel] = run(g.relations.list()).items
+    assert (rel.from_entity, rel.type, rel.to_entity) == (BOB_ID, "WORKS_AT", "company:acme")
+    assert [ev.source_id for ev in run(g.entities.evidence(BOB_ID)).items] == ["staff"]
 
 
 def test_unmerge_restores_a_retired_merge_relation_without_superseding():

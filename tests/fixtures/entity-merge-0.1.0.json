@@ -1,0 +1,17 @@
+{
+  "id": "entitymerge:baa1fd484bdf518f7ae42ff5",
+  "ns": "default",
+  "survivor_id": "person:robert",
+  "absorbed_id": "person:bob",
+  "reason": "alias",
+  "confidence": 0.95,
+  "source_id": "staff",
+  "source_ids_json": "[\"staff\"]",
+  "absorbed_json": "{\"aliases\": [], \"external_ids\": {}, \"id\": \"person:bob\", \"name\": \"Bob\", \"properties\": {}, \"type\": \"Person\"}",
+  "added_aliases_json": "[]",
+  "added_external_ids_json": "[]",
+  "added_properties_json": "[]",
+  "rewrites_json": "[{\"dropped\": false, \"existed\": false, \"id\": \"relation:329637cf66d86571806ea6e5\", \"kind\": \"relation\", \"original\": {\"event_time\": null, \"from_entity\": \"person:bob\", \"id\": null, \"properties\": {}, \"to_entity\": \"company:acme\", \"type\": \"WORKS_AT\"}, \"rewritten\": {\"event_time\": null, \"from_entity\": \"person:robert\", \"id\": null, \"properties\": {}, \"to_entity\": \"company:acme\", \"type\": \"WORKS_AT\"}}]",
+  "created_at": "2026-11-15T16:48:42.766629+00:00",
+  "reverted_at": null
+}
