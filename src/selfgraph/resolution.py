@@ -912,6 +912,10 @@ def _decode_merge(props: dict[str, Any], entries: Sequence[dict[str, Any]] = ())
     listed: dict[str, list[Any]] = {"source": [], "rewrite": []}
     for row in sorted(entries, key=lambda r: int(r["seq"])):
         listed[row["kind"]].append(_loads(row["value_json"], None))
+    if props.get("source_entries") is None:
+        listed["source"] = _loads(props.get("source_ids_json"), [props["source_id"]] if props.get("source_id") else [])
+    if props.get("rewrite_entries") is None:
+        listed["rewrite"] = _loads(props.get("rewrites_json"), [])
     return MergeRecord(
         id=props["id"],
         survivor_id=props["survivor_id"],

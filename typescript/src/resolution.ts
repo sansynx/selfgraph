@@ -1045,6 +1045,10 @@ function decodeMerge(props: Props, entries: readonly Props[] = []): MergeRecord 
   for (const row of [...entries].sort((a, b) => Number(a.seq) - Number(b.seq))) {
     listed[row.kind as string]!.push(loads<unknown>(row.value_json, null));
   }
+  if (props.source_entries == null) {
+    listed.source = loads<string[]>(props.source_ids_json, props.source_id ? [props.source_id as string] : []);
+  }
+  if (props.rewrite_entries == null) listed.rewrite = loads<MergeRewrite[]>(props.rewrites_json, []);
   return {
     id: props.id as string,
     survivor_id: props.survivor_id as string,
